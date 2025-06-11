@@ -36,18 +36,35 @@
 ## Установка и запуск
 
 ### 1. Клонировать репозиторий
-
-```bash
 git clone https://github.com/GravePush/QuantumTelegramBot.git
 cd yourrepo
 
 ### 2. Создать вирутальное окружение
-```bash
 python3 -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 
 ### 3. Установить зависимости
-```bash
 pip install -r requirements.txt
 
+### 4. Создать базу данных PostgreSQL
+Создайте файл .env и укажите все необходимые параметры:
+DB_USER=your_db_user
+DB_PASS=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=your_db_name
+
+BOT_API=your_telegram_bot_token
+SECRET_KEY=your_secret_key_for_jwt
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+Затем запустите python database_setup.py
+Если не получается, попробуйте создать БД вручную, например через PgAdmin.
+
+### 5. Применить миграции
+'''bash 
+alembic upgrade head
+
+### 5. Применить миграции
