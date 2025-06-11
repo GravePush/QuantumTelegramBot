@@ -12,5 +12,10 @@ class UserIn(BaseModel):
     password: str = Field(min_length=8, max_length=32)
 
 
-class UserOutMessage(BaseModel):
+class UserOut(BaseModel):
+    id: int
+    username: str
+
+
+class UserResponseMessage(BaseModel):
     message: str

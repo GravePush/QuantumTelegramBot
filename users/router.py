@@ -8,21 +8,13 @@ from database import get_db
 from users import UserModel
 from users.auth import get_password_hash, authenticate_user, create_access_token
 from users.dependencies import get_current_user
-from users.schemas import UserIn, UserOutMessage
+from users.schemas import UserIn, UserResponseMessage, UserSchema, UserOut
 from users.service import UserService
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
 
-# @users_router.get("")
-# async def get_all_users(db: AsyncSession = Depends(get_db)):
-#     users = await UserService.get_all(session=db)
-#     if not users:
-#         raise HTTPException(status_code=404, detail="Users not found!")
-#     return users
-
-
-@users_router.post("/register", response_model=UserOutMessage)
+@users_router.post("/register", response_model=UserResponseMessage)
 async def register_user(user: UserIn, db: AsyncSession = Depends(get_db)):
     existing_user = await UserService.get_one_or_none(session=db, username=user.username)
     if existing_user:
@@ -33,12 +25,12 @@ async def register_user(user: UserIn, db: AsyncSession = Depends(get_db)):
         username=user.username,
         password=hashed_password
     )
-    return UserOutMessage(
+    return UserResponseMessage(
         message=f"{user.username} successful registered!"
     )
 
 
-@users_router.post("/login", response_model=UserOutMessage)
+@users_router.post("/login", response_model=UserResponseMessage)
 async def login(
         user: UserIn,
         response: Response,
@@ -61,17 +53,17 @@ async def login(
         expires_delta=access_token_expires
     )
     response.set_cookie("api_access_token", access_token, httponly=True, max_age=access_token_expires_to_seconds)
-    return UserOutMessage(
+    return UserResponseMessage(
         message=f"{user.username} successful logged!"
     )
 
 
-@users_router.post("/me")
+@users_router.post("/me", response_model=UserOut)
 async def get_me(user: UserModel = Depends(get_current_user)):
     return user
 
 
-@users_router.post("/logout")
+@users_router.post("/logout", response_model=UserResponseMessage)
 async def logout(response: Response, user: UserModel = Depends(get_current_user)):
     response.delete_cookie("api_access_token")
-    return UserOutMessage(message=f"{user.username} logout.")
+    return UserResponseMessage(message=f"{user.username} logout.")

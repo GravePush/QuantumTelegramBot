@@ -3,7 +3,7 @@ import asyncio
 import httpx
 from aiogram import Bot, Dispatcher, F
 
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
 
 from config import BOT_API, API_URL
@@ -22,11 +22,9 @@ async def posts_handler(message: Message):
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{API_URL}/posts")
-            print(response)
             response.raise_for_status()
         except httpx.HTTPError as e:
             await message.answer(f"Ошибка при получении постов. {e}")
-            print(e)
             return
 
     posts = response.json()
@@ -59,14 +57,13 @@ async def callback_handler(callback: CallbackQuery):
         try:
             post_id = int(callback_data)
             response = await client.get(f"{API_URL}/posts/{post_id}")
-            print(response.json())
             response.raise_for_status()
         except httpx.HTTPError:
             await callback.message.edit_text("Ошибка при получении поста.")
             return
 
     post = response.json()
-    print(post)
+
     text = (
         f"Заголовок - {post['headline']}\n"
         f"Описание - {post['text']}\n"
@@ -80,6 +77,7 @@ async def callback_handler(callback: CallbackQuery):
 
     await bot.send_message(chat_id=callback.message.chat.id, text=text, reply_markup=keyboard)
     await callback.answer()
+
 
 async def main():
     await dp.start_polling(bot)
